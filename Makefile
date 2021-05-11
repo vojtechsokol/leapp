@@ -1,3 +1,6 @@
+# there are bashisms used in this Makefile
+SHELL=/bin/bash
+
 PYTHON_VENV ?= python
 VENVNAME ?= tut
 CONFDIR=${DESTDIR}/etc/leapp
@@ -75,8 +78,6 @@ clean:
 prepare: clean
 	@echo "--- Prepare build directories ---"
 	@mkdir -p packaging/{sources,SRPMS}/
-	@mkdir -p packaging/sources/
-	@mkdir -p packaging/SRPMS/
 
 source: prepare
 	@echo "--- Create source tarball ---"
