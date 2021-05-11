@@ -49,6 +49,9 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: "refs/pull/${{ steps.pr_nr.outputs.pr_nr }}/head"
+
+      - name: get ref and sha
+        id: ref_sha
         run: |
           echo "::set-output name=sha::git rev-parse --short HEAD"
           echo "::set-output name=ref::refs/pull/${{ steps.pr_nr.outputs.pr_nr }}/head"
@@ -112,14 +115,14 @@ jobs:
           cat << EOF > request.json
           {
             "api_key": "${{ secrets.TF_API_KEY }}",
-            "test": {"fmf": {"url": "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY", "ref": "${{ steps.checkout.outputs.sha }}"}},
+            "test": {"fmf": {"url": "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY", "ref": "${{ steps.ref_sha.outputs.sha }}"}},
             "environments": [{
               "arch": "x86_64",
               "os": {"compose": "Fedora-33"},
               "variables": {
                 "REPO": "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY",
-                "REF": "${{ steps.checkout.outputs.ref }}",
-                "SHA": "${{ steps.checkout.outputs.sha }}"
+                "REF": "${{ steps.ref_sha.outputs.ref }}",
+                "SHA": "${{ steps.ref_sha.outputs.sha }}"
               }
             }]
           }
