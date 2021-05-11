@@ -71,20 +71,20 @@ jobs:
           # TODO: dafuq!? without this the copr_build target fails in make srpm...
           # mkdir -p packaging/{sources,SRPMS}/
           # git archive --prefix leapp-0.12.1/ -o "packaging/sources/leapp-0.12.1.tar.gz" HEAD
-          echo "listing contents of packaging/ folder BEFORE make srpm"
+          echo "listing contents of packaging/ folder BEFORE make prepare"
           find packaging/
 
           echo "running make srpm..."
-          PR=${{ steps.pr_nr.outputs.pr_nr }} COPR_CONFIG=copr_fedora.conf make srpm
+          PR=${{ steps.pr_nr.outputs.pr_nr }} COPR_CONFIG=copr_fedora.conf make prepare
           echo "DONE"
 
-          echo "listing contents of packaging/ folder AFTER make srpm"
+          echo "listing contents of packaging/ folder AFTER make prepare"
           find packaging/
 
-          pip install copr-cli
+          ###pip install copr-cli
           # PR=${{ steps.pr_nr.outputs.pr_nr }} COPR_CONFIG=copr_fedora.conf make srpm | tee copr.log
           # PR=${{ steps.pr_nr.outputs.pr_nr }} COPR_CONFIG=copr_fedora.conf make srpm
-          PR=${{ steps.pr_nr.outputs.pr_nr }} COPR_CONFIG=copr_fedora.conf make copr_build | tee copr.log
+          ###PR=${{ steps.pr_nr.outputs.pr_nr }} COPR_CONFIG=copr_fedora.conf make copr_build | tee copr.log
 
           COPR_URL=$(grep -Po 'https://copr.fedorainfracloud.org/coprs/build/\d+' copr.log)
           echo "::set-output name=copr_url::${COPR_URL}"
