@@ -74,7 +74,9 @@ clean:
 
 prepare: clean
 	@echo "--- Prepare build directories ---"
-	@mkdir -p "packaging/{sources,SRPMS}/"
+	@mkdir -p packaging/{sources,SRPMS}/
+	@mkdir -p packaging/sources/
+	@mkdir -p packaging/SRPMS/
 
 source: prepare
 	@echo "--- Create source tarball ---"
