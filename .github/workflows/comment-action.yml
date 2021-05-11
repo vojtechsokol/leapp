@@ -1,0 +1,86 @@
+name: comment
+
+on:
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  pr_commented:
+    # This job only runs for pull request comments
+    name: PR comment
+    # Run the action only for '/rerun' pull request comment by owner, member, or collaborator of the repo/organization
+    if: |
+      github.event.issue.pull_request
+      && github.event.comment.body == '/rerun'
+      && contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+    runs-on: ubuntu-20.04
+    steps:
+      - name: dump event details
+        id: dump_evemt
+        run: |
+          jq < $GITHUB_EVENT_PATH
+
+      - name: comment on commented PR
+        id: coment_pr
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Comment on PR #${{ github.event.issue.number }}'
+            })
+
+      - name: get pull request number
+        id: pr_nr
+        run: |
+          echo "${{ github.event.comment.issue_url }}"
+          PR_URL="${{ github.event.comment.issue_url }}"
+          PR_NR="${PR_URL##*/}"
+          echo "${PR_NR}"
+          echo "::set-output name=pr_nr::${PR_NR}"
+
+      - name: checkout
+        # TODO: the correct way to checkout would be to use simmilar approach as in get_commit_by_timestamp function of
+        # the github gluetool module
+        uses: actions/checkout@v2
+        with:
+          ref: "refs/pull/${{ steps.pr_nr.outputs.pr_nr }}/head"
+
+      - name: trigger copr build
+        id: copr_build
+        run: |
+          cat << EOF > copr_fedora.conf
+          [copr-cli]
+          login = ${{ secrets.COPR_LOGIN }}
+          username = vojtechsokol
+          token = ${{ secrets.COPR_TOKEN }}
+          copr_url = https://copr.fedorainfracloud.org
+          # expiration date: 2021-11-06
+          EOF
+
+          mkdir -p packaging/{sources,SRPMS}/
+          git archive --prefix leapp-0.12.1/ -o "packaging/sources/leapp-0.12.1.tar.gz" HEAD
+
+          pip install copr-cli
+          # PR=${{ steps.pr_nr.outputs.pr_nr }} COPR_CONFIG=copr_fedora.conf make srpm | tee copr.log
+          # PR=${{ steps.pr_nr.outputs.pr_nr }} COPR_CONFIG=copr_fedora.conf make srpm
+          PR=${{ steps.pr_nr.outputs.pr_nr }} COPR_CONFIG=copr_fedora.conf make copr_build | tee copr.log
+
+          COPR_URL=$(grep -Po 'https://copr.fedorainfracloud.org/coprs/build/\d+' copr.log)
+          echo "::set-output name=copr_url::${COPR_URL}"
+
+      - name: copr comment
+        id: link_copr
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Copr build: ${{ steps.copr_build.outputs.copr_url }}'
+            })
+
