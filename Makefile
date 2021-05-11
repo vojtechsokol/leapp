@@ -1,3 +1,6 @@
+# there are bashisms used in this Makefile
+SHELL=/bin/bash
+
 PYTHON_VENV ?= python
 VENVNAME ?= tut
 CONFDIR=${DESTDIR}/etc/leapp
@@ -95,9 +98,9 @@ srpm: source
 
 copr_build: srpm
 	@echo "--- Build RPM ${PKGNAME}-${VERSION}-${RELEASE}.el7.rpm in COPR ---"
-	@echo copr --config $(_COPR_CONFIG) build $(_COPR_REPO) \
+	@echo copr-cli --config $(_COPR_CONFIG) build $(_COPR_REPO) \
 		packaging/SRPMS/${PKGNAME}-${VERSION}-${RELEASE}*.src.rpm
-	@copr --config $(_COPR_CONFIG) build $(_COPR_REPO) \
+	@copr-cli --config $(_COPR_CONFIG) build $(_COPR_REPO) \
 		packaging/SRPMS/${PKGNAME}-${VERSION}-${RELEASE}*.src.rpm
 
 print_release:
