@@ -68,6 +68,8 @@ jobs:
           # expiration date: 2021-11-06
           EOF
 
+          make --version
+
           # TODO: dafuq!? without this the copr_build target fails in make srpm...
           # mkdir -p packaging/{sources,SRPMS}/
           # git archive --prefix leapp-0.12.1/ -o "packaging/sources/leapp-0.12.1.tar.gz" HEAD
