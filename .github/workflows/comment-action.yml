@@ -68,8 +68,10 @@ jobs:
           # expiration date: 2021-11-06
           EOF
 
-          mkdir -p packaging/{sources,SRPMS}/
-          git archive --prefix leapp-0.12.1/ -o "packaging/sources/leapp-0.12.1.tar.gz" HEAD
+          # TODO: dafuq!? without this the copr_build target fails in make srpm...
+          # mkdir -p packaging/{sources,SRPMS}/
+          # git archive --prefix leapp-0.12.1/ -o "packaging/sources/leapp-0.12.1.tar.gz" HEAD
+          PR=${{ steps.pr_nr.outputs.pr_nr }} COPR_CONFIG=copr_fedora.conf make srpm
 
           pip install copr-cli
           # PR=${{ steps.pr_nr.outputs.pr_nr }} COPR_CONFIG=copr_fedora.conf make srpm | tee copr.log
