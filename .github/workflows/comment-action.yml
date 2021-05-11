@@ -71,8 +71,14 @@ jobs:
           # TODO: dafuq!? without this the copr_build target fails in make srpm...
           # mkdir -p packaging/{sources,SRPMS}/
           # git archive --prefix leapp-0.12.1/ -o "packaging/sources/leapp-0.12.1.tar.gz" HEAD
+          echo "listing contents of packaging/ folder BEFORE make srpm"
           find packaging/
+
+          echo "running make srpm..."
           PR=${{ steps.pr_nr.outputs.pr_nr }} COPR_CONFIG=copr_fedora.conf make srpm
+          echo "DONE"
+
+          echo "listing contents of packaging/ folder AFTER make srpm"
           find packaging/
 
           pip install copr-cli
