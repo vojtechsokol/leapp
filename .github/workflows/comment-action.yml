@@ -40,9 +40,9 @@ jobs:
         run: |
           cat << EOF > copr_fedora.conf
           [copr-cli]
-          login = ${{ secrets.COPR_LOGIN }}
+          login = ${{ secrets.FEDORA_COPR_LOGIN }}
           username = vojtechsokol
-          token = ${{ secrets.COPR_TOKEN }}
+          token = ${{ secrets.FEDORA_COPR_TOKEN }}
           copr_url = https://copr.fedorainfracloud.org
           # expiration date: 2021-11-06
           EOF
@@ -52,6 +52,7 @@ jobs:
 
           COPR_URL=$(grep -Po 'https://copr.fedorainfracloud.org/coprs/build/\d+' copr.log)
           echo "::set-output name=copr_url::${COPR_URL}"
+          echo "::set-output name=copr_id::${COPR_URL##*/}"
 
       - name: Add comment with copr build url
         # TODO: Create comment when copr build fails.
@@ -103,6 +104,7 @@ jobs:
                 "REPO": "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY",
                 "REF": "${{ steps.ref_sha.outputs.ref }}",
                 "SHA": "${{ steps.ref_sha.outputs.sha }}"
+                "COPR": "${{ steps.copr_build.outputs.copr_id }}"
               }
             }]
           }
