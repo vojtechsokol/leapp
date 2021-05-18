@@ -50,7 +50,8 @@ jobs:
           pip install copr-cli
           PR=${{ steps.pr_nr.outputs.pr_nr }} COPR_CONFIG=copr_fedora.conf make copr_build | tee copr.log
 
-          COPR_URL=$(grep -Po 'https://copr.fedorainfracloud.org/coprs/build/\d+' copr.log)
+          #COPR_URL=$(grep -Po 'https://copr.fedorainfracloud.org/coprs/build/\d+' copr.log)
+          COPR_URL="copr/42"
           echo "::set-output name=copr_url::${COPR_URL}"
           echo "::set-output name=copr_id::${COPR_URL##*/}"
 
@@ -103,7 +104,7 @@ jobs:
               "variables": {
                 "REPO": "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY",
                 "REF": "${{ steps.ref_sha.outputs.ref }}",
-                "SHA": "${{ steps.ref_sha.outputs.sha }}"
+                "SHA": "${{ steps.ref_sha.outputs.sha }}",
                 "COPR_ID": "${{ steps.copr_build.outputs.copr_id }}"
               }
             }]
