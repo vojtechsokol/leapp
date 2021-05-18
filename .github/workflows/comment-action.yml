@@ -94,8 +94,8 @@ jobs:
           {
             "api_key": "${{ secrets.TF_API_KEY }}",
             "test": {"fmf": {
-              "url": "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY",
-              "ref": "${{ steps.ref_sha.outputs.sha }}"
+              "url": "https://gitlab.cee.redhat.com/oamg/tmt-plans",
+              "ref": "master"
             }},
             "environments": [{
               "arch": "x86_64",
@@ -104,17 +104,25 @@ jobs:
                 "REPO": "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY",
                 "REF": "${{ steps.ref_sha.outputs.ref }}",
                 "SHA": "${{ steps.ref_sha.outputs.sha }}"
-                "COPR": "${{ steps.copr_build.outputs.copr_id }}"
+                "COPR_ID": "${{ steps.copr_build.outputs.copr_id }}"
               }
             }]
           }
           EOF
+
+          if [ "${{ secrets.ACTIONS_STEP_DEBUG }}" = "true" ]; then
+              jq < request.json
+          fi
 
           #curl ${{ secrets.TF_ENDPOINT }}/requests \
           #  --data @request.json \
           #  --header "Content-Type: application/json" \
           #  --output response.json
           echo '{"id": "fake-id"}' > response.json
+
+          if [ "${{ secrets.ACTIONS_STEP_DEBUG }}" = "true" ]; then
+              jq < response.json
+          fi
 
           echo "::set-output name=req_id::$(jq -r .id response.json)"
 
