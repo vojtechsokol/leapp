@@ -84,11 +84,6 @@ jobs:
         # At this moment repo/sha that triggered the action is used, i.e. all tests plans specified in THIS repository
         # are run.
 
-        # TODO: The tests are run in `Fedora-33` compose, it should be possible to use `Fedora` symbolic name that
-        #       should be translated to the latest stable Fedora but the job ends in 'error' state:
-        #       "Guest couldn't be provisioned: Artemis resource ended in 'error' state"
-        #       However this is not a signifficant issue because it's expected that the test provisions a test machine
-        #       on its own.
         id: sched_test
         run: |
           cat << EOF > request.json
@@ -101,11 +96,12 @@ jobs:
             "environments": [{
               "arch": "x86_64",
               "os": {"compose": "Fedora-33"},
+              "artifacts": [{"type": "fedora-copr-build", "id": "${{ steps.copr_build.outputs.copr_id }}"}],
               "variables": {
                 "REPO": "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY",
                 "REF": "${{ steps.ref_sha.outputs.ref }}",
                 "SHA": "${{ steps.ref_sha.outputs.sha }}",
-                "COPR_ID": "${{ steps.copr_build.outputs.copr_id }}"
+                "PR_NUMBER": "${{ steps.pr_nr.outputs.pr_nr }}"
               }
             }]
           }
@@ -143,5 +139,6 @@ jobs:
               repo: context.repo.repo,
               body: 'Testing Farm [request](${{ secrets.TF_ENDPOINT }}/requests/${{ steps.sched_test.outputs.req_id }})' +
                     ' for tmt test was created. Once finished, results should be available' +
-                    ' [here](http://artifacts.osci.redhat.com/testing-farm/${{ steps.sched_test.outputs.req_id }}/).'
+                    ' [here](http://artifacts.osci.redhat.com/testing-farm/${{ steps.sched_test.outputs.req_id }}/).' +
+                    '\n[Full pipeline log](http://artifacts.osci.redhat.com/testing-farm/${{ steps.sched_test.outputs.req_id }}/pipeline.log).'
             })
